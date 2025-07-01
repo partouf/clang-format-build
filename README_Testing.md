@@ -24,15 +24,15 @@ python test_pascal_formatting.py
 
 ## How It Works
 
-- `test_pascal_formatting.py` - Main test file using ApprovalTests framework
-- `DataProcessor.pas` - Source Pascal file to format
+- `tests/test_pascal_formatting.py` - Main test file using ApprovalTests framework
+- `examples/DataProcessor.pas` - Source Pascal file to format
 - `.clang-format` - Configuration for Pascal formatting
 - `tests/*.approved.txt` - Approved baseline formatting output  
 - `tests/*.received.txt` - Current formatting output (created during test failures)
 
 ## Adding New Tests
 
-1. Add new Pascal source files to `../pascal-examples/`
+1. Add new Pascal source files to `examples/`
 2. Add corresponding test methods to `PascalFormattingTest` class
 3. Run tests to generate initial `.received.txt` files
 4. Review the formatting and approve by copying to `.approved.txt`

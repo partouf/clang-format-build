@@ -58,7 +58,7 @@ class PascalFormattingTest:
     
     def test_data_processor_class(self):
         """Test formatting of a complete Pascal class with properties and methods."""
-        source_file = self.project_root.parent / "pascal-examples" / "DataProcessor.pas"
+        source_file = self.project_root / "examples" / "DataProcessor.pas"
         
         with open(source_file, 'r') as f:
             source_code = f.read()
