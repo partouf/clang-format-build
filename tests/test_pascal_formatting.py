@@ -125,6 +125,20 @@ class PascalFormattingTest:
         
         # Verify the formatted code against approved baseline
         verify(formatted_code)
+    
+    def test_spring4d_enterprise_formatting(self):
+        """Test formatting complex enterprise Spring4D patterns with OOP, DI, and inline vars."""
+        source_file = self.project_root / "examples" / "AdvancedSpring4D.pas"
+        
+        with open(source_file, 'r') as f:
+            source_code = f.read()
+        
+        # Use default config for comprehensive formatting test
+        default_config = self.test_configs_dir / "pascal-default.clang-format"
+        formatted_code = self.format_pascal_code(source_code, str(default_config))
+        
+        # Verify the formatted code against approved baseline
+        verify(formatted_code)
 
 
 def test_data_processor_formatting():
@@ -151,6 +165,12 @@ def test_property_formatting_with_config_file():
     test.test_property_formatting_with_config_file()
 
 
+def test_spring4d_enterprise_formatting():
+    """Pytest entry point for Spring4D enterprise formatting test."""
+    test = PascalFormattingTest()
+    test.test_spring4d_enterprise_formatting()
+
+
 if __name__ == "__main__":
     # Direct execution for manual testing
     test = PascalFormattingTest()
@@ -167,5 +187,8 @@ if __name__ == "__main__":
     
     print("4. Testing config file property formatting...")
     test.test_property_formatting_with_config_file()
+    
+    print("5. Testing Spring4D enterprise formatting...")
+    test.test_spring4d_enterprise_formatting()
     
     print("All tests completed successfully!")
