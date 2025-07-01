@@ -1,0 +1,5 @@
+---
+Language: Pascal
+IndentWidth: 2
+PascalProperties: SingleLine
+AllowShortInlineVariablesOnASingleLine: true

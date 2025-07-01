@@ -19,7 +19,7 @@ class PascalFormattingTest:
     def __init__(self):
         self.project_root = Path(__file__).parent.parent  # Go up one level from tests/ to project root
         self.clang_format_path = self._find_clang_format()
-        self.clang_format_config = self.project_root / ".clang-format"
+        self.test_configs_dir = Path(__file__).parent / "configs"
         
     def _find_clang_format(self):
         """Find the clang-format executable."""
@@ -41,18 +41,29 @@ class PascalFormattingTest:
         except subprocess.CalledProcessError:
             raise RuntimeError("Could not find clang-format executable")
     
-    def format_pascal_code(self, source_code: str) -> str:
-        """Format Pascal source code using clang-format."""
+    def format_pascal_code(self, source_code: str, style_config: str = None) -> str:
+        """Format Pascal source code using clang-format.
+        
+        Args:
+            source_code: The Pascal source code to format
+            style_config: Optional style configuration (file path or inline YAML)
+        """
         with tempfile.NamedTemporaryFile(mode='w', suffix='.pas', delete=False) as f:
             f.write(source_code)
             temp_file = f.name
         
         try:
-            cmd = [
-                self.clang_format_path,
-                f"--style=file:{self.clang_format_config}",
-                temp_file
-            ]
+            if style_config:
+                if style_config.startswith('{'):
+                    # Inline YAML style
+                    cmd = [self.clang_format_path, f"--style={style_config}", temp_file]
+                else:
+                    # File-based style
+                    cmd = [self.clang_format_path, f"--style=file:{style_config}", temp_file]
+            else:
+                # Default style using dedicated test config
+                default_config = self.test_configs_dir / "pascal-default.clang-format"
+                cmd = [self.clang_format_path, f"--style=file:{default_config}", temp_file]
             
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             return result.stdout
@@ -72,6 +83,48 @@ class PascalFormattingTest:
         
         # Verify the formatted code against approved baseline
         verify(formatted_code)
+    
+    def test_property_formatting_single_line(self):
+        """Test Pascal property formatting with SingleLine style."""
+        source_file = self.project_root / "examples" / "DataProcessor.pas"
+        singleline_config = self.test_configs_dir / "pascal-singleline.clang-format"
+        
+        with open(source_file, 'r') as f:
+            source_code = f.read()
+        
+        # Use dedicated SingleLine property formatting config
+        formatted_code = self.format_pascal_code(source_code, str(singleline_config))
+        
+        # Verify the formatted code against approved baseline
+        verify(formatted_code)
+    
+    def test_property_formatting_multi_line(self):
+        """Test Pascal property formatting with MultiLine style."""
+        source_file = self.project_root / "examples" / "DataProcessor.pas"
+        multiline_config = self.test_configs_dir / "pascal-multiline.clang-format"
+        
+        with open(source_file, 'r') as f:
+            source_code = f.read()
+        
+        # Use dedicated MultiLine property formatting config
+        formatted_code = self.format_pascal_code(source_code, str(multiline_config))
+        
+        # Verify the formatted code against approved baseline
+        verify(formatted_code)
+    
+    def test_property_formatting_with_config_file(self):
+        """Test Pascal property formatting using dedicated multiline config file."""
+        source_file = self.project_root / "examples" / "DataProcessor.pas"
+        multiline_config = self.test_configs_dir / "pascal-multiline.clang-format"
+        
+        with open(source_file, 'r') as f:
+            source_code = f.read()
+        
+        # Use dedicated MultiLine config to test file-based configuration
+        formatted_code = self.format_pascal_code(source_code, str(multiline_config))
+        
+        # Verify the formatted code against approved baseline
+        verify(formatted_code)
 
 
 def test_data_processor_formatting():
@@ -80,8 +133,39 @@ def test_data_processor_formatting():
     test.test_data_processor_class()
 
 
+def test_property_formatting_single_line():
+    """Pytest entry point for SingleLine property formatting test."""
+    test = PascalFormattingTest()
+    test.test_property_formatting_single_line()
+
+
+def test_property_formatting_multi_line():
+    """Pytest entry point for MultiLine property formatting test."""
+    test = PascalFormattingTest()
+    test.test_property_formatting_multi_line()
+
+
+def test_property_formatting_with_config_file():
+    """Pytest entry point for config file property formatting test."""
+    test = PascalFormattingTest()
+    test.test_property_formatting_with_config_file()
+
+
 if __name__ == "__main__":
     # Direct execution for manual testing
     test = PascalFormattingTest()
+    
+    print("Running all Pascal formatting tests...")
+    print("1. Testing default data processor formatting...")
     test.test_data_processor_class()
-    print("Test completed successfully!")
+    
+    print("2. Testing SingleLine property formatting...")
+    test.test_property_formatting_single_line()
+    
+    print("3. Testing MultiLine property formatting...")
+    test.test_property_formatting_multi_line()
+    
+    print("4. Testing config file property formatting...")
+    test.test_property_formatting_with_config_file()
+    
+    print("All tests completed successfully!")
