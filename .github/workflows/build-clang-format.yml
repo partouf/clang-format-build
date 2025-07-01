@@ -1,0 +1,104 @@
+name: Build clang-format with Pascal support
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake ninja-build build-essential
+
+    - name: Clone LLVM with Pascal support
+      run: |
+        git clone --depth 1 --branch feature/pascal-language-support https://github.com/partouf/llvm-project.git llvm-project
+
+    - name: Configure CMake
+      run: |
+        cd llvm-project
+        cmake -S llvm -B build -G Ninja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DLLVM_ENABLE_PROJECTS="clang" \
+          -DLLVM_TARGETS_TO_BUILD="X86" \
+          -DCMAKE_C_COMPILER=gcc \
+          -DCMAKE_CXX_COMPILER=g++
+
+    - name: Build clang-format
+      run: |
+        cd llvm-project
+        ninja -C build clang-format
+
+    - name: Create Linux archive
+      run: |
+        cd llvm-project
+        mkdir -p clang-format-pascal-linux
+        cp build/bin/clang-format clang-format-pascal-linux/
+        cp clang/tools/clang-format/clang-format-diff.py clang-format-pascal-linux/
+        echo "clang-format with Pascal language support - Linux x64" > clang-format-pascal-linux/README.txt
+        echo "Built from: https://github.com/partouf/llvm-project/tree/feature/pascal-language-support" >> clang-format-pascal-linux/README.txt
+        tar -czf clang-format-pascal-linux.tar.gz clang-format-pascal-linux/
+
+    - name: Upload Linux artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: clang-format-pascal-linux
+        path: llvm-project/clang-format-pascal-linux.tar.gz
+        retention-days: 30
+
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Install dependencies
+      run: |
+        choco install cmake ninja
+
+    - name: Setup MSVC
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Clone LLVM with Pascal support
+      run: |
+        git clone --depth 1 --branch feature/pascal-language-support https://github.com/partouf/llvm-project.git llvm-project
+
+    - name: Configure CMake
+      run: |
+        cd llvm-project
+        cmake -S llvm -B build -G Ninja `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DLLVM_ENABLE_PROJECTS="clang" `
+          -DLLVM_TARGETS_TO_BUILD="X86" `
+          -DCMAKE_C_COMPILER=cl `
+          -DCMAKE_CXX_COMPILER=cl
+      shell: powershell
+
+    - name: Build clang-format
+      run: |
+        cd llvm-project
+        ninja -C build clang-format
+      shell: powershell
+
+    - name: Create Windows archive
+      run: |
+        cd llvm-project
+        mkdir clang-format-pascal-windows
+        copy build\bin\clang-format.exe clang-format-pascal-windows\
+        copy clang\tools\clang-format\clang-format-diff.py clang-format-pascal-windows\
+        echo "clang-format with Pascal language support - Windows x64" > clang-format-pascal-windows\README.txt
+        echo "Built from: https://github.com/partouf/llvm-project/tree/feature/pascal-language-support" >> clang-format-pascal-windows\README.txt
+        Compress-Archive -Path clang-format-pascal-windows -DestinationPath clang-format-pascal-windows.zip
+      shell: powershell
+
+    - name: Upload Windows artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: clang-format-pascal-windows
+        path: llvm-project/clang-format-pascal-windows.zip
+        retention-days: 30
