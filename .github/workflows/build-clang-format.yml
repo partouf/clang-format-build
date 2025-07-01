@@ -57,12 +57,12 @@ jobs:
     runs-on: windows-latest
     
     steps:
+    - name: Setup MSVC environment
+      uses: ilammy/msvc-dev-cmd@v1
+
     - name: Install dependencies
       run: |
         choco install cmake ninja
-
-    - name: Setup MSVC
-      uses: microsoft/setup-msbuild@v2
 
     - name: Clone LLVM with Pascal support
       run: |
@@ -71,19 +71,17 @@ jobs:
     - name: Configure CMake
       run: |
         cd llvm-project
-        cmake -S llvm -B build -G Ninja `
-          -DCMAKE_BUILD_TYPE=Release `
-          -DLLVM_ENABLE_PROJECTS="clang" `
-          -DLLVM_TARGETS_TO_BUILD="X86" `
-          -DCMAKE_C_COMPILER=cl `
-          -DCMAKE_CXX_COMPILER=cl
-      shell: powershell
+        cmake -S llvm -B build -G Ninja ^
+          -DCMAKE_BUILD_TYPE=Release ^
+          -DLLVM_ENABLE_PROJECTS="clang" ^
+          -DLLVM_TARGETS_TO_BUILD="X86"
+      shell: cmd
 
     - name: Build clang-format
       run: |
         cd llvm-project
         ninja -C build clang-format
-      shell: powershell
+      shell: cmd
 
     - name: Create Windows archive
       run: |
@@ -91,10 +89,10 @@ jobs:
         mkdir clang-format-pascal-windows
         copy build\bin\clang-format.exe clang-format-pascal-windows\
         copy clang\tools\clang-format\clang-format-diff.py clang-format-pascal-windows\
-        echo "clang-format with Pascal language support - Windows x64" > clang-format-pascal-windows\README.txt
-        echo "Built from: https://github.com/partouf/llvm-project/tree/feature/pascal-language-support" >> clang-format-pascal-windows\README.txt
-        Compress-Archive -Path clang-format-pascal-windows -DestinationPath clang-format-pascal-windows.zip
-      shell: powershell
+        echo clang-format with Pascal language support - Windows x64 > clang-format-pascal-windows\README.txt
+        echo Built from: https://github.com/partouf/llvm-project/tree/feature/pascal-language-support >> clang-format-pascal-windows\README.txt
+        powershell -Command "Compress-Archive -Path clang-format-pascal-windows -DestinationPath clang-format-pascal-windows.zip"
+      shell: cmd
 
     - name: Upload Windows artifact
       uses: actions/upload-artifact@v4
