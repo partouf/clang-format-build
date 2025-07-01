@@ -23,6 +23,11 @@ class PascalFormattingTest:
         
     def _find_clang_format(self):
         """Find the clang-format executable."""
+        # Check for environment variable first (for CI)
+        env_path = os.environ.get('CLANG_FORMAT_PATH')
+        if env_path and Path(env_path).exists():
+            return env_path
+            
         # Try local build first
         local_path = self.project_root.parent / "llvm-project-pascal" / "build" / "bin" / "clang-format"
         if local_path.exists():

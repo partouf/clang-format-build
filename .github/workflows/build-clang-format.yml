@@ -12,10 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - name: Checkout this repository
+      uses: actions/checkout@v4
+      with:
+        path: clang-format-build
+
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake ninja-build build-essential
+        sudo apt-get install -y cmake ninja-build build-essential python3 python3-pip python3-venv
 
     - name: Clone LLVM with Pascal support
       run: |
@@ -35,6 +40,35 @@ jobs:
       run: |
         cd llvm-project
         ninja -C build clang-format
+
+    - name: Run Pascal formatting tests
+      run: |
+        # Verify clang-format was built successfully
+        ls -la llvm-project/build/bin/clang-format
+        ./llvm-project/build/bin/clang-format --version
+        
+        # Set up Python environment and run tests
+        cd clang-format-build
+        python3 -m venv test_venv
+        source test_venv/bin/activate
+        pip install -r requirements.txt
+        
+        # Export path to built clang-format
+        export CLANG_FORMAT_PATH="$GITHUB_WORKSPACE/llvm-project/build/bin/clang-format"
+        echo "Using clang-format at: $CLANG_FORMAT_PATH"
+        
+        # Run formatting tests
+        python -m pytest tests/test_pascal_formatting.py -v --tb=short
+        
+        # If tests fail, show what the current formatting looks like
+        if [ $? -ne 0 ]; then
+          echo "=== Pascal formatting tests failed ==="
+          echo "Current formatting output:"
+          if [ -f tests/*.received.txt ]; then
+            cat tests/*.received.txt | head -20
+          fi
+          exit 1
+        fi
 
     - name: Create Linux archive
       run: |
