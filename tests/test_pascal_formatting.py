@@ -17,7 +17,7 @@ class PascalFormattingTest:
     """Test class for Pascal code formatting using clang-format."""
     
     def __init__(self):
-        self.project_root = Path(__file__).parent.parent  # Go up one level from tests/ to project root
+        self.project_root = Path(__file__).parent.parent
         self.clang_format_path = self._find_clang_format()
         self.test_configs_dir = Path(__file__).parent / "configs"
         
@@ -61,7 +61,6 @@ class PascalFormattingTest:
                     # File-based style
                     cmd = [self.clang_format_path, f"--style=file:{style_config}", temp_file]
             else:
-                # Default style using dedicated test config
                 default_config = self.test_configs_dir / "pascal-default.clang-format"
                 cmd = [self.clang_format_path, f"--style=file:{default_config}", temp_file]
             
@@ -120,7 +119,6 @@ class PascalFormattingTest:
         with open(source_file, 'r') as f:
             source_code = f.read()
         
-        # Use dedicated MultiLine config to test file-based configuration
         formatted_code = self.format_pascal_code(source_code, str(multiline_config))
         
         # Verify the formatted code against approved baseline
@@ -133,7 +131,6 @@ class PascalFormattingTest:
         with open(source_file, 'r') as f:
             source_code = f.read()
         
-        # Use default config for basic OOP formatting test
         default_config = self.test_configs_dir / "pascal-default.clang-format"
         formatted_code = self.format_pascal_code(source_code, str(default_config))
         
@@ -147,7 +144,6 @@ class PascalFormattingTest:
         with open(source_file, 'r') as f:
             source_code = f.read()
         
-        # Use default config for nested begin/end test
         default_config = self.test_configs_dir / "pascal-default.clang-format"
         formatted_code = self.format_pascal_code(source_code, str(default_config))
         
@@ -192,7 +188,6 @@ def test_nested_begin_end_formatting():
 
 
 if __name__ == "__main__":
-    # Direct execution for manual testing
     test = PascalFormattingTest()
     
     print("Running all Pascal formatting tests...")
