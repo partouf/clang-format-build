@@ -3,3 +3,20 @@ Language: Pascal
 IndentWidth: 2
 PascalProperties: SingleLine
 AllowShortInlineVariablesOnASingleLine: true
+
+# Function formatting
+AlwaysBreakAfterReturnType: None
+BreakAfterReturnType: None
+
+# Spacing
+SpaceBeforeAssignmentOperators: true
+SpaceInEmptyParentheses: false
+SpacesInParentheses: false
+
+# Line breaking
+ColumnLimit: 100
+BreakBeforeBraces: Attach
+AllowShortFunctionsOnASingleLine: None
+
+# Pascal-specific
+UseTab: Never
