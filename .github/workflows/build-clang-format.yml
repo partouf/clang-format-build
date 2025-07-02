@@ -6,6 +6,8 @@ on:
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
   build-linux:
@@ -134,3 +136,30 @@ jobs:
         name: clang-format-pascal-windows
         path: llvm-project/clang-format-pascal-windows.zip
         retention-days: 30
+
+  upload-release:
+    if: github.event_name == 'release'
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Download Linux artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: clang-format-pascal-linux
+    
+    - name: Download Windows artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: clang-format-pascal-windows
+    
+    - name: Upload Release Assets
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          clang-format-pascal-linux.tar.gz
+          clang-format-pascal-windows.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
