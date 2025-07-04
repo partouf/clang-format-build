@@ -1,9 +1,10 @@
-program AdvancedSpring4D;
+unit AdvancedSpring4D;
 
-{$APPTYPE CONSOLE}
 {$IFDEF FPC}
   {$MODE DELPHI}
 {$ENDIF}
+
+interface
 
 uses
   SysUtils,
@@ -87,6 +88,8 @@ type
     procedure BuildChain;
     procedure ProcessRequest(const ARequest: string);
   end;
+
+implementation
 
 { TBaseHandler }
 
@@ -229,39 +232,4 @@ begin
     WriteLn('Chain not built');
 end;
 
-// Main program
-var
-  coordinator: TChainCoordinator;
-begin
-  try
-    WriteLn('=== Advanced Spring4D Chain of Responsibility ===');
-    WriteLn;
-    
-    coordinator := TChainCoordinator.Create;
-    try
-      coordinator.BuildChain;
-      
-      WriteLn('Testing validation request:');
-      coordinator.ProcessRequest('validate user input');
-      WriteLn;
-      
-      WriteLn('Testing authorization request:');
-      coordinator.ProcessRequest('authorize user access');
-      WriteLn;
-      
-      WriteLn('Testing unknown request:');
-      coordinator.ProcessRequest('unknown request type');
-      
-    finally
-      coordinator.Free;
-    end;
-    
-  except
-    on E: Exception do
-      WriteLn('Error: ', E.Message);
-  end;
-  
-  WriteLn;
-  WriteLn('Press Enter to exit...');
-  ReadLn;
 end.
