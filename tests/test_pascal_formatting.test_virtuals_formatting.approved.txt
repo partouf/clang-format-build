@@ -16,11 +16,8 @@ type
   protected
     constructor Create(const ALogger: ILogger);
   public
-    function CanHandle(const ARequest: string): Boolean;
-    virtual;
-    abstract;
-    procedure Handle(const ARequest: string);
-    virtual;
+    function CanHandle(const ARequest: string): Boolean; virtual; abstract;
+    procedure Handle(const ARequest: string); virtual;
     procedure SetNext(const ANext: IHandler);
   end;
 
