@@ -149,6 +149,19 @@ class PascalFormattingTest:
         
         # Verify the formatted code against approved baseline
         verify(formatted_code)
+    
+    def test_virtuals_formatting(self):
+        """Test formatting virtual methods and abstract classes."""
+        source_file = self.project_root / "examples" / "virtuals.pas"
+        
+        with open(source_file, 'r') as f:
+            source_code = f.read()
+        
+        default_config = self.test_configs_dir / "pascal-default.clang-format"
+        formatted_code = self.format_pascal_code(source_code, str(default_config))
+        
+        # Verify the formatted code against approved baseline
+        verify(formatted_code)
 
 
 def test_data_processor_formatting():
@@ -187,6 +200,12 @@ def test_nested_begin_end_formatting():
     test.test_nested_begin_end_formatting()
 
 
+def test_virtuals_formatting():
+    """Pytest entry point for virtual methods formatting test."""
+    test = PascalFormattingTest()
+    test.test_virtuals_formatting()
+
+
 if __name__ == "__main__":
     test = PascalFormattingTest()
     
@@ -208,5 +227,8 @@ if __name__ == "__main__":
     
     print("6. Testing nested begin/end formatting...")
     test.test_nested_begin_end_formatting()
+    
+    print("7. Testing virtual methods formatting...")
+    test.test_virtuals_formatting()
     
     print("All tests completed successfully!")
