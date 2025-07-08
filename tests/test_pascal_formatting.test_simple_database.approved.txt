@@ -1,0 +1,62 @@
+unit SimpleDatabase;
+
+interface
+
+type
+  TMemoryDatabase = class
+  private
+    FConnected: Boolean;
+    FData: TStringList;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function Connect: Boolean;
+    procedure Disconnect;
+    function ExecuteQuery(const SQL: string): string;
+  end;
+
+implementation
+
+uses
+  SysUtils,
+  Classes;
+
+constructor TMemoryDatabase.Create;
+begin
+  inherited Create;
+  FData := TStringList.Create;
+  FData.Add('User1|John Doe');
+  FData.Add('User2|Jane Smith');
+  FConnected := False;
+end;
+
+destructor TMemoryDatabase.Destroy;
+begin
+  FData.Free;
+  inherited;
+end;
+
+function TMemoryDatabase.Connect: Boolean;
+begin
+  FConnected := True;
+  Result := FConnected;
+end;
+
+procedure TMemoryDatabase.Disconnect;
+begin
+  FConnected := False;
+end;
+
+function TMemoryDatabase.ExecuteQuery(const SQL: string): string;
+begin
+  if not FConnected then
+    raise Exception.Create('Database not connected');
+
+  // Simple mock query execution
+  if Pos('SELECT', UpperCase(SQL)) > 0 then
+    Result := FData.Text
+  else
+    Result := 'Query executed successfully';
+end;
+
+end.
