@@ -1,0 +1,99 @@
+unit ExceptionHandling;
+
+interface
+
+type
+  ECustomException = class(Exception)
+  private
+    FErrorCode: Integer;
+  public
+    constructor Create(const AMessage: string; AErrorCode: Integer);
+    property ErrorCode: Integer read FErrorCode;
+  end;
+
+  TDataProcessor = class
+  public
+    function ProcessFile(const FileName: string): string;
+    procedure ValidateInput(const Data: string);
+    function SafeDivide(A, B: Double): Double;
+  end;
+
+implementation
+
+constructor ECustomException.Create(const AMessage: string; AErrorCode: Integer);
+begin
+  inherited Create(AMessage);
+  FErrorCode := AErrorCode;
+end;
+
+function TDataProcessor.ProcessFile(const FileName: string): string;
+var
+  FileContent: string;
+begin
+  try
+    try
+      if not FileExists(FileName) then
+        raise EFileNotFoundException.CreateFmt('File not found: %s', [FileName]);
+      
+      FileContent := TFile.ReadAllText(FileName);
+      ValidateInput(FileContent);
+      Result := UpperCase(FileContent);
+    except
+      on E: EFileNotFoundException do
+      begin
+        WriteLn('File error: ', E.Message);
+        raise;
+      end;
+      on E: ECustomException do
+      begin
+        WriteLn('Custom error [', E.ErrorCode, ']: ', E.Message);
+        Result := '';
+      end;
+      on E: Exception do
+      begin
+        WriteLn('Unexpected error: ', E.Message);
+        raise ECustomException.Create('Processing failed: ' + E.Message, 500);
+      end;
+    end;
+  finally
+    WriteLn('Cleanup completed for: ', FileName);
+  end;
+end;
+
+procedure TDataProcessor.ValidateInput(const Data: string);
+begin
+  try
+    if Length(Data) = 0 then
+      raise ECustomException.Create('Empty data not allowed', 100);
+    
+    if Length(Data) > 1000000 then
+      raise ECustomException.Create('Data too large', 200);
+  except
+    on E: ECustomException do
+      raise;
+    else
+      raise ECustomException.Create('Validation failed', 300);
+  end;
+end;
+
+function TDataProcessor.SafeDivide(A, B: Double): Double;
+begin
+  try
+    if B = 0 then
+      raise EDivByZero.Create('Division by zero');
+    Result := A / B;
+  except
+    on EDivByZero do
+    begin
+      WriteLn('Warning: Division by zero, returning 0');
+      Result := 0;
+    end;
+    else
+    begin
+      WriteLn('Unexpected division error');
+      raise;
+    end;
+  end;
+end;
+
+end.

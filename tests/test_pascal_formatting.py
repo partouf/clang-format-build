@@ -201,6 +201,19 @@ class PascalFormattingTest:
         
         # Verify the formatted code against approved baseline
         verify(formatted_code)
+    
+    def test_exception_handling(self):
+        """Test formatting Pascal exception handling (try/except/finally)."""
+        source_file = self.project_root / "examples" / "ExceptionHandling.pas"
+        
+        with open(source_file, 'r') as f:
+            source_code = f.read()
+        
+        default_config = self.test_configs_dir / "pascal-default.clang-format"
+        formatted_code = self.format_pascal_code(source_code, str(default_config))
+        
+        # Verify the formatted code against approved baseline
+        verify(formatted_code)
 
 
 def test_data_processor_formatting():
@@ -261,6 +274,12 @@ def test_unit_initialization():
     """Pytest entry point for unit initialization formatting test."""
     test = PascalFormattingTest()
     test.test_unit_initialization()
+
+
+def test_exception_handling():
+    """Pytest entry point for exception handling formatting test."""
+    test = PascalFormattingTest()
+    test.test_exception_handling()
 
 
 if __name__ == "__main__":
