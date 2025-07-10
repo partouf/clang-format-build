@@ -35,6 +35,7 @@ begin
       if not FileExists(FileName) then
         raise EFileNotFoundException.CreateFmt('File not found: %s',
                                                [ FileName ]);
+
       FileContent := TFile.ReadAllText(FileName);
       ValidateInput(FileContent);
       Result := UpperCase(FileContent);
