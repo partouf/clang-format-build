@@ -188,6 +188,19 @@ class PascalFormattingTest:
         
         # Verify the formatted code against approved baseline
         verify(formatted_code)
+    
+    def test_unit_initialization(self):
+        """Test formatting unit initialization and finalization sections."""
+        source_file = self.project_root / "examples" / "UnitInitialization.pas"
+        
+        with open(source_file, 'r') as f:
+            source_code = f.read()
+        
+        default_config = self.test_configs_dir / "pascal-default.clang-format"
+        formatted_code = self.format_pascal_code(source_code, str(default_config))
+        
+        # Verify the formatted code against approved baseline
+        verify(formatted_code)
 
 
 def test_data_processor_formatting():
@@ -242,6 +255,12 @@ def test_anonymous_function():
     """Pytest entry point for anonymous function formatting test."""
     test = PascalFormattingTest()
     test.test_anonymous_function()
+
+
+def test_unit_initialization():
+    """Pytest entry point for unit initialization formatting test."""
+    test = PascalFormattingTest()
+    test.test_unit_initialization()
 
 
 if __name__ == "__main__":
